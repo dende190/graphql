@@ -1,14 +1,15 @@
 'use strict'
 
-const { graphql, buildSchema } = require('graphql');
+const { buildSchema } = require('graphql');
 const express = require('express');
-const gqlMiddleware = require('express-graphql');
+const { graphqlHTTP } = require('express-graphql');
 const app = express();
 const port = process.env.port || 8080;
 
 //Definiendo el esquema
 const schema = buildSchema(`
 	type Query {
+		"Retorna un saludo al mundo"
 		hello: String
 	}
 `);
@@ -21,9 +22,12 @@ const resolvers = {
 }
 
 //Configracion de Middleware
-app.use('/api', gqlMiddleware);
+app.use('/api', graphqlHTTP({
+	schema: schema,
+	rootValue: resolvers,
+	graphiql: true
+}));
 
-
-//Ejecutar el query Hello
-graphql(schema, '{ hello }', resolvers)
-	.then(data => console.log(data));  
+app.listen(port, () => {
+	console.log('servidor iniciado en', port);
+});
